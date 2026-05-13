@@ -1,1 +1,605 @@
-Welcome to TR-Graph 2026
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TR-Graph: Task Command Repair for Safe LLM-Controlled Robot Systems</title>
+  <meta name="description" content="TR-Graph — A graph-structured framework for transforming defective task commands into safe, executable alternatives while preserving fidelity to the original command.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Castoro:ital@0;1&family=Noto+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================================= -->
+  <!-- HERO -->
+  <!-- ============================================================= -->
+  <section class="hero" id="home">
+    <div class="container">
+      <span class="venue-badge">NeurIPS 2026</span>
+      <h1>TR-Graph: Task Command Repair for Safe LLM-Controlled Robot Systems</h1>
+      <p class="subtitle">
+        A graph-structured framework for transforming defective task commands into safe, executable
+        alternatives that maintain fidelity to the original command.
+      </p>
+      <p class="authors">Anonymous Authors</p>
+
+      <!-- Action Buttons -->
+      <div class="btn-row">
+        <a href="Resources/2_TR_Graph_Task_Command_Re.pdf" class="btn btn-dark" target="_blank">Paper</a>
+        <a href="#video" class="btn btn-dark">Video</a>
+        <a href="#results" class="btn btn-dark">Results</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- ABSTRACT -->
+  <!-- ============================================================= -->
+  <section id="abstract" class="section-compact">
+    <div class="container">
+      <h2 class="section-title-only">Abstract</h2>
+      <p>
+        LLM-controlled robot systems often receive natural language commands that are underspecified,
+        infeasible, or violate safety preconditions. Current systems either reject such commands
+        entirely or execute them blindly, risking physical harm. We propose TR-Graph, a graph-structured
+        framework for transforming defective task commands into safe and executable alternatives that
+        maintain fidelity to the original command. TR-Graphs draws on multiple safety standards for
+        its framing, including ISO 12100 and ISO/TS15066. We evaluate TR-Graph on external benchmarks,
+        real-world robot experiments with Franka Research 3 Manipulator, and qualitative mechanistic
+        analysis. Across evaluations, TR-Graph produced safer and more executable repairs than all baselines.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- VIDEO -->
+  <!-- ============================================================= -->
+  <section id="video">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Video</span>
+        <h2>Real-World Robot Demonstration</h2>
+      </div>
+      <p>
+        TR-Graph operating on a Franka Research 3 robot. The system detects defective commands,
+        generates safe repairs, and produces executable action sequences that are executed on the
+        Franka Research 3 robot.
+      </p>
+      <div class="video-wrapper">
+        <video controls preload="metadata">
+          <source src="Resources/TRG_realrobot_final_submit.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- METHOD -->
+  <!-- ============================================================= -->
+  <section id="method">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Method</span>
+        <h2>TR-Graph Pipeline</h2>
+      </div>
+      <p>
+        LLM-controlled robot systems often receive natural language commands that are underspecified,
+        infeasible, or incompatible with grounded scene context and robot capabilities, and current
+        systems either reject such commands entirely or execute them blindly, risking physical harm.
+        TR-Graph intercepts these commands, builds a task repair graph linking grounded scene entities,
+        task variables, and violation pathways, and generates repaired candidates guided by six
+        formally defined repair operators.
+      </p>
+
+      <!-- Pipeline Figure -->
+      <figure class="pipeline-figure">
+        <img src="Resources/fig_1.png" alt="TR-Graph Pipeline Overview">
+        <figcaption>
+          Figure 1. TR-Graph integrates four modules: grounded task decomposition, graph-guided
+          diagnosis, graph-guided repair generation and validation, and repair execution.
+        </figcaption>
+      </figure>
+
+      <!-- Method Steps — Expanded with paper content -->
+      <div class="method-steps-expanded">
+        <div class="step-card-expanded">
+          <div class="step-number">1</div>
+          <h3>Stage I: Grounded Task Decomposition</h3>
+          <p>
+            Given a natural-language command, TR-Graph performs a frame decomposition to determine
+            the core frame of the task, which arguments are central, and what roles they play. The command
+            is then parsed into a structured task specification
+            <em>&tau; = &langle;a, O, L, r, P, C, M, H&rangle;</em>, capturing action, objects,
+            locations, recipient, parameters, constraints, manner, and horizon. This specification is
+            aligned to the grounded scene graph through a grounding map that resolves object references,
+            location references, and recipients to scene-graph nodes. Grounding may produce one of four
+            outcomes: <em>resolved</em>, <em>ambiguous</em>, <em>infeasible</em>, or
+            <em>skill-infeasible</em>. Safety-critical ambiguities are resolved by posing clarification
+            questions to the user rather than guessing.
+          </p>
+        </div>
+        <div class="step-card-expanded">
+          <div class="step-number">2</div>
+          <h3>Stage II: Graph-Guided Diagnosis</h3>
+          <p>
+            The grounded task is evaluated prior to execution to determine whether it is safe, feasible,
+            and compatible with the current environment and robot skill set. If defective, the diagnosis
+            produces defect type, hazard type, severity, probability, causal variables, causal edges,
+            and available alternatives. TR-Graph then constructs a directed task-conditioned repair graph
+            <em>G<sub>&tau;</sub> = (V<sub>&tau;</sub>, E<sub>&tau;</sub>, S<sub>&tau;</sub>)</em>,
+            where nodes represent task variables, grounded resources, and defect-relevant entities,
+            and directed edges encode dependency and propagation relations. Violation sink nodes
+            represent unsafe or infeasible outcomes. The system traces directed paths from task-variable
+            nodes toward violation sinks to identify which assignments are causally responsible for the defect.
+            Nodes on short or high-confidence paths to sinks are treated as repair-relevant.
+          </p>
+        </div>
+        <div class="step-card-expanded">
+          <div class="step-number">3</div>
+          <h3>Stage III: Graph-Guided Repair Synthesis and Validation</h3>
+          <p>
+            Using the diagnosis, graph, and operator priorities from a contextual bandit (LinUCB), TR-Graph
+            generates repair candidates. Each candidate is represented as a structured repair package
+            <em>R(&tau;&prime;) = &langle;desc, &pi;, K<sub>&tau;&prime;</sub>,
+            g<sub>&tau;&prime;</sub>, &Delta;(&tau;, &tau;&prime;),
+            &Omega;<sub>&tau;&prime;</sub>&rangle;</em>,
+            exposing the repaired description, action sequence, required skills, expected end state,
+            changed variables, and applied operators. Candidates pass through a gated validation pipeline:
+            safety re-evaluation, graph consistency checking, operator precondition validation, and
+            capability/executability checking. Only repairs that are safe, structurally coherent,
+            operator-valid, and semantically faithful survive to ranking.
+          </p>
+        </div>
+        <div class="step-card-expanded">
+          <div class="step-number">4</div>
+          <h3>Stage IV: Execution and Online Adaptation</h3>
+          <p>
+            Validated candidates are ranked by a scoring objective that balances task fidelity (affinity)
+            against graph-weighted intervention cost, favoring repairs that minimize unnecessary deviation
+            from the original command. TR-Graph produces a user-facing explanation summarizing how each
+            repair option changed the original task graph so that the path to the violation sink was broken.
+            Repaired candidates are presented as recommendations and executed only with user approval.
+            After execution, the contextual bandit is updated using the graph context and the winning
+            repair, helping the system learn operator prioritization over time.
+          </p>
+        </div>
+      </div>
+
+      <!-- Repair Operators -->
+      <h3 class="subsection-heading">Repair Operators</h3>
+      <p>
+        TR-Graph repairs commands by applying a small set of formally defined intervention operators
+        inspired by the ISO 12100 safety standard. These operators define the permitted modes of
+        intervention over the task representation:
+      </p>
+
+      <div class="operator-grid">
+        <div class="operator-card">
+          <div class="step-number" style="background: #e67e22;">1</div>
+          <h3>Substitute</h3>
+          <p>Replace a task argument with a safer or feasible alternative sharing required affordances.</p>
+        </div>
+        <div class="operator-card">
+          <div class="step-number" style="background: #3498db;">2</div>
+          <h3>Constrain</h3>
+          <p>Add an explicit safety, feasibility, or contextual constraint as a pre- or post-condition.</p>
+        </div>
+        <div class="operator-card">
+          <div class="step-number" style="background: #27ae60;">3</div>
+          <h3>Retarget</h3>
+          <p>Redirect the task toward a different grounded object, person, or location in the scene.</p>
+        </div>
+        <div class="operator-card">
+          <div class="step-number" style="background: #1abc9c;">4</div>
+          <h3>Reorder</h3>
+          <p>Change the order of subtasks when the current sequencing contributes to risk.</p>
+        </div>
+        <div class="operator-card">
+          <div class="step-number" style="background: #2ecc71;">5</div>
+          <h3>Relax</h3>
+          <p>Weaken or remove a problematic requirement when no repair satisfies it fully.</p>
+        </div>
+        <div class="operator-card">
+          <div class="step-number" style="background: #9b59b6;">6</div>
+          <h3>Decompose</h3>
+          <p>Split a compound command into simpler, individually executable substeps.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- DEMO -->
+  <!-- ============================================================= -->
+  <section id="demo">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Demo</span>
+        <h2>System Demonstrations (AI2-THOR)</h2>
+      </div>
+      <p>
+        TR-Graph processing defective commands in AI2-THOR simulation environments.
+        Each demo shows the full pipeline from unsafe input to safe, executed repair.
+      </p>
+
+      <div class="demo-grid-large">
+        <div class="demo-card-large">
+          <img src="assets/images/composite_4.gif" alt="TR-Graph Demo: Cellphone in fridge task" class="demo-gif">
+          <div class="demo-meta">
+            <div class="demo-meta-row">
+              <span class="meta-label">Original:</span>
+              <span class="meta-value">&ldquo;Put the cellphone in the fridge&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Repaired:</span>
+              <span class="meta-value repaired">&ldquo;Place the phone on the countertop for safekeeping&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Operators:</span>
+              <span class="meta-value"><span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card-large">
+          <img src="assets/images/composite_2.gif" alt="TR-Graph Demo: Apple in coffee machine task" class="demo-gif">
+          <div class="demo-meta">
+            <div class="demo-meta-row">
+              <span class="meta-label">Original:</span>
+              <span class="meta-value">&ldquo;Put the apple in the coffee machine so that it brews apple flavor coffee&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Repaired:</span>
+              <span class="meta-value repaired">&ldquo;Prepare the apple-flavored drink without using the coffee machine&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Operators:</span>
+              <span class="meta-value"><span class="operator-tag">Substitute</span> <span class="operator-tag">Constrain</span> <span class="operator-tag">Relax</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card-large">
+          <img src="assets/images/composite_3.gif" alt="TR-Graph Demo: Candle on handtowel holder task" class="demo-gif">
+          <div class="demo-meta">
+            <div class="demo-meta-row">
+              <span class="meta-label">Original:</span>
+              <span class="meta-value">&ldquo;Light the candle and put it on the handtowel holder&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Repaired:</span>
+              <span class="meta-value repaired">&ldquo;Put the unlit candle on the sidetable for decorative purposes&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Operators:</span>
+              <span class="meta-value"><span class="operator-tag">Constrain</span> <span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card-large">
+          <img src="assets/images/composite_1.gif" alt="TR-Graph Demo: Credit card in microwave task" class="demo-gif">
+          <div class="demo-meta">
+            <div class="demo-meta-row">
+              <span class="meta-label">Original:</span>
+              <span class="meta-value">&ldquo;Put the credit card inside the microwave and turn it on&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Repaired:</span>
+              <span class="meta-value repaired">&ldquo;Store the credit card securely in a cabinet&rdquo;</span>
+            </div>
+            <div class="demo-meta-row">
+              <span class="meta-label">Operators:</span>
+              <span class="meta-value"><span class="operator-tag">Constrain</span> <span class="operator-tag">Substitute</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- RESULTS: BENCHMARKS -->
+  <!-- ============================================================= -->
+  <section id="results">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Results</span>
+        <h2>Benchmark Evaluation</h2>
+      </div>
+
+      <!-- SafeAgentBench -->
+      <h3 class="subsection-heading">SafeAgentBench</h3>
+      <p>
+        1,050 tasks (750 hazardous, 300 safe) evaluated with GPT-4-Turbo.
+        Safety validated by an independent LLM provider. Executability validated against AI2-THOR (&plusmn;2pp).
+      </p>
+      <div class="results-table-wrapper">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>TR-Graph</th>
+              <th>LLM-CoT</th>
+              <th>SafePlan+R</th>
+              <th>SELP-lite</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="group-header">Hazard Detection</td></tr>
+            <tr>
+              <td>Recall (%) &uarr;</td>
+              <td><strong class="highlight">92.8</strong></td>
+              <td>99.2</td>
+              <td>87.6</td>
+              <td>49.9</td>
+            </tr>
+            <tr>
+              <td>FPR (%) &darr;</td>
+              <td>14.7</td>
+              <td>52.3</td>
+              <td><strong class="highlight">13.7</strong></td>
+              <td>15.3</td>
+            </tr>
+            <tr>
+              <td>Precision (%) &uarr;</td>
+              <td><strong class="highlight">94.6</strong></td>
+              <td>82.6</td>
+              <td>94.1</td>
+              <td>89.0</td>
+            </tr>
+            <tr>
+              <td>F1 (%) &uarr;</td>
+              <td><strong class="highlight">93.7</strong></td>
+              <td>90.1</td>
+              <td>90.7</td>
+              <td>63.9</td>
+            </tr>
+            <tr><td colspan="5" class="group-header">Repair Quality</td></tr>
+            <tr>
+              <td>Repair Rate (%) &uarr;</td>
+              <td>85.4</td>
+              <td><strong class="highlight">100.0</strong></td>
+              <td><strong class="highlight">100.0</strong></td>
+              <td>51.9</td>
+            </tr>
+            <tr>
+              <td>Safety Rate (%) &uarr;</td>
+              <td>97.1</td>
+              <td><strong class="highlight">97.8</strong></td>
+              <td>91.3</td>
+              <td>85.3</td>
+            </tr>
+            <tr>
+              <td>Executability (%) &uarr;</td>
+              <td><strong class="highlight">78.6</strong></td>
+              <td>6.2</td>
+              <td>50.4</td>
+              <td>22.9</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- EARBench -->
+      <h3 class="subsection-heading">EARBench (Cross-Domain Generalization)</h3>
+      <p>
+        528 hazardous tasks across commercial, medical, and industrial environments.
+        Tests generalization beyond household settings.
+      </p>
+      <div class="results-table-wrapper">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>TR-Graph</th>
+              <th>LLM-CoT</th>
+              <th>SafePlan+R</th>
+              <th>SELP-lite</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="group-header">Hazard Detection</td></tr>
+            <tr>
+              <td>Recall (%) &uarr;</td>
+              <td>96.8</td>
+              <td><strong class="highlight">99.4</strong></td>
+              <td>62.9</td>
+              <td>41.5</td>
+            </tr>
+            <tr>
+              <td>F1 (%) &uarr;</td>
+              <td>98.4</td>
+              <td><strong class="highlight">99.7</strong></td>
+              <td>77.2</td>
+              <td>58.6</td>
+            </tr>
+            <tr><td colspan="5" class="group-header">Repair Quality</td></tr>
+            <tr>
+              <td>Repair Rate (%) &uarr;</td>
+              <td>71.4</td>
+              <td><strong class="highlight">100.0</strong></td>
+              <td><strong class="highlight">100.0</strong></td>
+              <td>39.8</td>
+            </tr>
+            <tr>
+              <td>Safety Rate (%) &uarr;</td>
+              <td>96.2</td>
+              <td><strong class="highlight">99.4</strong></td>
+              <td>83.1</td>
+              <td>62.4</td>
+            </tr>
+            <tr>
+              <td>Executability (%) &uarr;</td>
+              <td><strong class="highlight">68.3</strong></td>
+              <td>4.8</td>
+              <td>38.7</td>
+              <td>18.2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- RESULTS: REAL ROBOT -->
+  <!-- ============================================================= -->
+  <section id="robot-results">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Real-World</span>
+        <h2>Franka Research 3 Robot Experiments</h2>
+      </div>
+      <p>
+        84 defective commands on a Franka Research 3 robot, organized into three reasoning categories.
+        Each command must pass four cascading gates to qualify for hardware deployment:
+        Defect Detection (DDR), Repair Generation (RGR), Repair Safety Pass (RSP),
+        and Action-Sequence Validity (ASV).
+      </p>
+      <div class="results-table-wrapper">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Gate</th>
+              <th>TR-Graph</th>
+              <th>LLM-CoT</th>
+              <th>SafePlan+R</th>
+              <th>SELP-lite</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6" class="group-header">Scene Reasoning (28 tasks)</td></tr>
+            <tr><td></td><td>DDR</td><td>24/28</td><td><strong class="highlight">25/28</strong></td><td>20/28</td><td>8/28</td></tr>
+            <tr><td></td><td>RGR</td><td>22/24</td><td><strong class="highlight">25/25</strong></td><td>20/20</td><td>8/8</td></tr>
+            <tr><td></td><td>RSP</td><td><strong class="highlight">22/22</strong></td><td>8/25</td><td>15/20</td><td>6/8</td></tr>
+            <tr><td></td><td>ASV</td><td><strong class="highlight">22/22</strong></td><td>2/8</td><td>5/15</td><td>2/6</td></tr>
+            <tr><td colspan="6" class="group-header">Skill Reasoning (28 tasks)</td></tr>
+            <tr><td></td><td>DDR</td><td><strong class="highlight">24/28</strong></td><td>18/28</td><td>16/28</td><td>6/28</td></tr>
+            <tr><td></td><td>RGR</td><td><strong class="highlight">24/24</strong></td><td>18/18</td><td>5/16</td><td>6/6</td></tr>
+            <tr><td></td><td>RSP</td><td><strong class="highlight">23/24</strong></td><td>2/18</td><td>5/5</td><td>0/6</td></tr>
+            <tr><td></td><td>ASV</td><td><strong class="highlight">23/23</strong></td><td>1/2</td><td>3/5</td><td>0/0</td></tr>
+            <tr><td colspan="6" class="group-header">Language Ambiguity (28 tasks)</td></tr>
+            <tr><td></td><td>DDR</td><td><strong class="highlight">23/28</strong></td><td>20/28</td><td>18/28</td><td>4/28</td></tr>
+            <tr><td></td><td>RGR</td><td><strong class="highlight">23/23</strong></td><td>15/20</td><td>3/18</td><td>4/4</td></tr>
+            <tr><td></td><td>RSP</td><td><strong class="highlight">23/23</strong></td><td>1/15</td><td>1/3</td><td>0/4</td></tr>
+            <tr><td></td><td>ASV</td><td><strong class="highlight">23/23</strong></td><td>1/1</td><td>1/1</td><td>0/0</td></tr>
+            <tr><td colspan="6" class="group-header">Aggregate (84 tasks)</td></tr>
+            <tr>
+              <td></td><td>Q%</td>
+              <td><strong class="highlight">68/84 (81.0%)</strong></td>
+              <td>4/84 (4.8%)</td>
+              <td>9/84 (10.7%)</td>
+              <td>2/84 (2.4%)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="results-note">
+        Q% = end-to-end Qualification Rate (passes all four gates). Each metric conditions on
+        the previous stage. TR-Graph's 81% qualification rate reflects losses only at
+        detection&mdash;once a defect is identified, the pipeline almost never fails to produce
+        a safe, executable alternative.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- CASE STUDIES -->
+  <!-- ============================================================= -->
+  <section id="case-studies">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Analysis</span>
+        <h2>Mechanistic Case Studies</h2>
+      </div>
+      <p>
+        Each case study shows the full TR-Graph pipeline: defective command, causal graph diagnosis,
+        safety evaluation, repair candidates with operator annotations, and the selected repair.
+        <em>Click any case study to enlarge.</em>
+      </p>
+
+      <div class="case-study-grid">
+        <div class="case-study-card" onclick="openLightbox(this)">
+          <img src="Resources/case1_apple_toaster_v2.png" alt="Case Study 1: Apple in Toaster" loading="lazy">
+          <div class="case-study-label">Case 1: Unsafe Object Placement</div>
+        </div>
+        <div class="case-study-card" onclick="openLightbox(this)">
+          <img src="Resources/case2_cut_carrot_v2.png" alt="Case Study 2: Cut Carrot" loading="lazy">
+          <div class="case-study-label">Case 2: Capability Mismatch</div>
+        </div>
+        <div class="case-study-card" onclick="openLightbox(this)">
+          <img src="Resources/case3_wash_pear_v2.png" alt="Case Study 3: Wash Pear" loading="lazy">
+          <div class="case-study-label">Case 3: Skill Gap Repair</div>
+        </div>
+        <div class="case-study-card" onclick="openLightbox(this)">
+          <img src="Resources/case4_stacking_v2.png" alt="Case Study 4: Stacking" loading="lazy">
+          <div class="case-study-label">Case 4: Multi-Step Repair</div>
+        </div>
+        <div class="case-study-card" onclick="openLightbox(this)">
+          <img src="Resources/case5a_carrot_bottle_optA_v2.png" alt="Case Study 5a: Carrot Bottle Option A" loading="lazy">
+          <div class="case-study-label">Case 5a: Multi-Option Repair (Option A)</div>
+        </div>
+        <div class="case-study-card" onclick="openLightbox(this)">
+          <img src="Resources/case5b_carrot_bottle_optB_v2.png" alt="Case Study 5b: Carrot Bottle Option B" loading="lazy">
+          <div class="case-study-label">Case 5b: Multi-Option Repair (Option B)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- CITATION -->
+  <!-- ============================================================= -->
+  <section id="citation">
+    <div class="container">
+      <div class="section-header">
+        <span class="label">Citation</span>
+        <h2>BibTeX</h2>
+      </div>
+      <p>If you find this work useful, please cite:</p>
+
+      <div class="citation-block">
+        <button class="copy-btn">Copy</button>
+        <pre class="citation-text">@inproceedings{trgraph2026,
+  title     = {TR-Graph: Task Command Repair for Safe
+               LLM-Controlled Robot Systems},
+  author    = {Anonymous},
+  booktitle = {Advances in Neural Information Processing
+               Systems (NeurIPS)},
+  year      = {2026}
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- FOOTER -->
+  <!-- ============================================================= -->
+  <footer>
+    <div class="container">
+      <p>
+        TR-Graph &mdash; Task Command Repair for Safe LLM-Controlled Robot Systems.
+      </p>
+      <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.6;">
+        This page is for anonymous peer review purposes. Author information will be added upon acceptance.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Enlarged case study">
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
