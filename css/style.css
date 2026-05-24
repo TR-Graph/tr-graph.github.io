@@ -436,15 +436,15 @@ section:nth-child(even) {
   font-size: 0.85rem;
 }
 
-/* --- Demo Grid Large (3x size) --- */
+/* --- Demo Grid Large --- */
 .demo-grid-large {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2.5rem;
   margin-top: 2rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 0 2rem;
 }
 
 .demo-card-large {
@@ -463,7 +463,87 @@ section:nth-child(even) {
 }
 
 .demo-card-large .demo-meta {
-  padding: 1.25rem 1.5rem;
+  padding: 0.75rem 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.5rem;
+}
+
+.demo-meta-stacked {
+  margin-bottom: 0.5rem;
+}
+
+.demo-meta-stacked .meta-number {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.demo-meta-stacked .meta-number .meta-letter,
+.demo-meta-stacked .meta-number .meta-title {
+  color: var(--text-secondary);
+}
+
+.demo-meta-stacked .meta-content {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.demo-meta-stacked .meta-content.defect-text {
+  font-size: 0.82rem;
+}
+
+.demo-meta-stacked .meta-content.approval-text {
+  font-size: 0.82rem;
+}
+
+.meta-executed {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.demo-card-large .demo-gif-wrapper {
+  position: relative;
+}
+
+.demo-view-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(26, 127, 127, 0.7);
+  z-index: 1;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.demo-approval {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--accent-dark);
+}
+
+.demo-approval .approval-check {
+  color: #27ae60;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.demo-defect {
+  font-size: 0.8rem;
+  color: #b91c1c;
 }
 
 /* --- Demo Section (Original small, kept for reference) --- */
@@ -522,7 +602,6 @@ section:nth-child(even) {
 
 .meta-value.repaired {
   color: var(--accent-dark);
-  font-style: italic;
 }
 
 .operator-tag {
@@ -756,6 +835,7 @@ footer p {
   .case-study-grid {
     grid-template-columns: 1fr;
   }
+
 
   .operator-grid {
     grid-template-columns: 1fr;
