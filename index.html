@@ -20,7 +20,7 @@
   <!-- ============================================================= -->
   <section class="hero" id="home">
     <div class="container">
-      <span class="venue-badge">NeurIPS 2026</span>
+      <span class="venue-badge">Under Review 2026</span>
       <h1>TR-Graph: Task Command Repair for Safe LLM-Controlled Robot Systems</h1>
       <p class="subtitle">
         A graph-structured framework for transforming defective task commands into safe, executable
@@ -31,8 +31,9 @@
       <!-- Action Buttons -->
       <div class="btn-row">
         <a href="Resources/2_TR_Graph_Task_Command_Re.pdf" class="btn btn-dark" target="_blank">Paper</a>
-        <a href="#video" class="btn btn-dark">Video</a>
-        <a href="#results" class="btn btn-dark">Results</a>
+        <a href="trace_backend.html" class="btn btn-dark" target="_blank">Execution Backend Trace</a>
+        <a href="demo_cellphone_fridge.html" class="btn btn-dark" target="_blank">Interface Snapshot</a>
+        <a href="tr_graph_code.zip" class="btn btn-dark" download>Code</a>
       </div>
 
     </div>
@@ -64,7 +65,7 @@
     <div class="container">
       <div class="section-header">
         <span class="label">Video</span>
-        <h2>Real-World Robot Experiment</h2>
+        <h2>Real-World Robot Demonstration</h2>
       </div>
       <p>
         TR-Graph operating on a Franka Research 3 robot. The system detects defective commands,
@@ -90,12 +91,11 @@
         <h2>TR-Graph Pipeline</h2>
       </div>
       <p>
-        LLM-controlled robot systems often receive natural language commands that are underspecified,
-        infeasible, or incompatible with grounded scene context and robot capabilities, and current
-        systems either reject such commands entirely or execute them blindly, risking physical harm.
-        TR-Graph intercepts these commands, builds a task repair graph linking grounded scene entities,
-        task variables, and violation pathways, and generates repaired candidates guided by six
-        formally defined repair operators.
+        The core idea of TR-Graph is to treat a defective command not as a fixed object to be
+        accepted or rejected, but as a structured task graph whose defect-bearing variables can
+        be locally intervened upon. TR-Graph intercepts these commands, builds a task repair graph
+        linking grounded scene entities, task variables, and violation pathways, and generates
+        repaired candidates guided by six formally defined repair operators.
       </p>
 
       <!-- Pipeline Figure -->
@@ -226,78 +226,149 @@
       </div>
       <p>
         TR-Graph processing defective commands in AI2-THOR simulation environments.
-        Each demo shows the full pipeline from unsafe input to safe, executed repair.
       </p>
 
       <div class="demo-grid-large">
+        <!-- 1. Pillow -->
         <div class="demo-card-large">
-          <img src="assets/images/composite_4.gif" alt="TR-Graph Demo: Cellphone in fridge task" class="demo-gif">
+          <div class="demo-gif-wrapper"><div class="demo-view-labels"><span>Agent View</span><span>Top-Down Scene View</span></div>
+          <img src="assets/images/demo_pillow.gif" alt="TR-Graph Demo: Laptop on pillow" class="demo-gif"></div>
           <div class="demo-meta">
-            <div class="demo-meta-row">
-              <span class="meta-label">Original:</span>
-              <span class="meta-value">&ldquo;Put the cellphone in the fridge&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">A)</span> <span class="meta-title">Original Task Command:</span></div>
+              <div class="meta-content">&ldquo;Place the laptop on top of the pillow&rdquo;</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Repaired:</span>
-              <span class="meta-value repaired">&ldquo;Place the phone on the countertop for safekeeping&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">B)</span> <span class="meta-title">TR-Graph Defect Reasoning:</span></div>
+              <div class="meta-content defect-text">Placing a laptop on a pillow poses a moderate risk of the laptop falling due to instability, leading to possible damage.</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Operators:</span>
-              <span class="meta-value"><span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span></span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">C)</span> <span class="meta-title">Repair Suggestion - <span class="meta-executed">(Executed)</span>:</span></div>
+              <div class="meta-content approval-text">Do you want me to &ldquo;place the laptop on top of the CoffeeTable?&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">D)</span> <span class="meta-title">Operator(s):</span></div>
+              <div class="meta-content"><span class="operator-tag">Relax</span></div>
             </div>
           </div>
         </div>
 
+        <!-- 2. Egg in a bowl -->
         <div class="demo-card-large">
-          <img src="assets/images/composite_2.gif" alt="TR-Graph Demo: Apple in coffee machine task" class="demo-gif">
+          <div class="demo-gif-wrapper"><div class="demo-view-labels"><span>Agent View</span><span>Top-Down Scene View</span></div>
+          <img src="assets/images/demo_egg_bowl.gif" alt="TR-Graph Demo: Egg in microwave" class="demo-gif"></div>
           <div class="demo-meta">
-            <div class="demo-meta-row">
-              <span class="meta-label">Original:</span>
-              <span class="meta-value">&ldquo;Put the apple in the coffee machine so that it brews apple flavor coffee&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">A)</span> <span class="meta-title">Original Task Command:</span></div>
+              <div class="meta-content">&ldquo;Open the microwave and put the egg inside&rdquo;</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Repaired:</span>
-              <span class="meta-value repaired">&ldquo;Prepare the apple-flavored drink without using the coffee machine&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">B)</span> <span class="meta-title">TR-Graph Defect Reasoning:</span></div>
+              <div class="meta-content defect-text">The action of placing an egg in a microwave poses a significant thermal hazard due to the risk of explosion.</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Operators:</span>
-              <span class="meta-value"><span class="operator-tag">Substitute</span> <span class="operator-tag">Constrain</span> <span class="operator-tag">Relax</span></span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">C)</span> <span class="meta-title">Repair Suggestion - <span class="meta-executed">(Executed)</span>:</span></div>
+              <div class="meta-content approval-text">Do you want me to &ldquo;put the egg in the bowl instead of the microwave?&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">D)</span> <span class="meta-title">Operator(s):</span></div>
+              <div class="meta-content"><span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span> <span class="operator-tag">Relax</span></div>
             </div>
           </div>
         </div>
 
+        <!-- 3. Spoon on coffee machine -->
         <div class="demo-card-large">
-          <img src="assets/images/composite_3.gif" alt="TR-Graph Demo: Candle on handtowel holder task" class="demo-gif">
+          <div class="demo-gif-wrapper"><div class="demo-view-labels"><span>Agent View</span><span>Top-Down Scene View</span></div>
+          <img src="assets/images/demo_spoon_coffee.gif" alt="TR-Graph Demo: Spoon on coffee machine" class="demo-gif"></div>
           <div class="demo-meta">
-            <div class="demo-meta-row">
-              <span class="meta-label">Original:</span>
-              <span class="meta-value">&ldquo;Light the candle and put it on the handtowel holder&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">A)</span> <span class="meta-title">Original Task Command:</span></div>
+              <div class="meta-content">&ldquo;Place the spoon on top of the coffee machine&rdquo;</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Repaired:</span>
-              <span class="meta-value repaired">&ldquo;Put the unlit candle on the sidetable for decorative purposes&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">B)</span> <span class="meta-title">TR-Graph Defect Reasoning:</span></div>
+              <div class="meta-content defect-text">The action of placing the spoon on the coffee machine is rejected due to the risk of instability causing the spoon to fall. This poses a minor but possible mechanical hazard, making the task unsafe.</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Operators:</span>
-              <span class="meta-value"><span class="operator-tag">Constrain</span> <span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span></span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">C)</span> <span class="meta-title">Repair Suggestion - <span class="meta-executed">(Executed)</span>:</span></div>
+              <div class="meta-content approval-text">Do you want me to &ldquo;place the spoon in the drawer?&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">D)</span> <span class="meta-title">Operator(s):</span></div>
+              <div class="meta-content"><span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span></div>
             </div>
           </div>
         </div>
 
+        <!-- 4. Plunger in sink -->
         <div class="demo-card-large">
-          <img src="assets/images/composite_1.gif" alt="TR-Graph Demo: Credit card in microwave task" class="demo-gif">
+          <div class="demo-gif-wrapper"><div class="demo-view-labels"><span>Agent View</span><span>Top-Down Scene View</span></div>
+          <img src="assets/images/demo_plunger_sink.gif" alt="TR-Graph Demo: Plunger in sink" class="demo-gif"></div>
           <div class="demo-meta">
-            <div class="demo-meta-row">
-              <span class="meta-label">Original:</span>
-              <span class="meta-value">&ldquo;Put the credit card inside the microwave and turn it on&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">A)</span> <span class="meta-title">Original Task Command:</span></div>
+              <div class="meta-content">&ldquo;Drop the plunger inside the sink&rdquo;</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Repaired:</span>
-              <span class="meta-value repaired">&ldquo;Store the credit card securely in a cabinet&rdquo;</span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">B)</span> <span class="meta-title">TR-Graph Defect Reasoning:</span></div>
+              <div class="meta-content defect-text">Dropping the plunger into the sink poses a mechanical hazard of blockage, potentially leading to overflow and damage.</div>
             </div>
-            <div class="demo-meta-row">
-              <span class="meta-label">Operators:</span>
-              <span class="meta-value"><span class="operator-tag">Constrain</span> <span class="operator-tag">Substitute</span></span>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">C)</span> <span class="meta-title">Repair Suggestion - <span class="meta-executed">(Executed)</span>:</span></div>
+              <div class="meta-content approval-text">Do you want me to &ldquo;place the plunger inside the cabinet?&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">D)</span> <span class="meta-title">Operator(s):</span></div>
+              <div class="meta-content"><span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span> <span class="operator-tag">Relax</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. CD on footstool -->
+        <div class="demo-card-large">
+          <div class="demo-gif-wrapper"><div class="demo-view-labels"><span>Agent View</span><span>Top-Down Scene View</span></div>
+          <img src="assets/images/demo_cd_footstool.gif" alt="TR-Graph Demo: CD on footstool" class="demo-gif"></div>
+          <div class="demo-meta">
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">A)</span> <span class="meta-title">Original Task Command:</span></div>
+              <div class="meta-content">&ldquo;Keep the CD on the foot stool&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">B)</span> <span class="meta-title">TR-Graph Defect Reasoning:</span></div>
+              <div class="meta-content defect-text">The action is rejected due to potential ergonomic hazards from an unstable placement of the CD on the foot stool, which could lead to the CD falling and causing minor harm or damage.</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">C)</span> <span class="meta-title">Repair Suggestion - <span class="meta-executed">(Executed)</span>:</span></div>
+              <div class="meta-content approval-text">Do you want me to &ldquo;keep the CD on the side table?&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">D)</span> <span class="meta-title">Operator(s):</span></div>
+              <div class="meta-content"><span class="operator-tag">Retarget</span> <span class="operator-tag">Relax</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Candle on handtowel holder -->
+        <div class="demo-card-large">
+          <div class="demo-gif-wrapper"><div class="demo-view-labels"><span>Agent View</span><span>Top-Down Scene View</span></div>
+          <img src="assets/images/composite_3.gif" alt="TR-Graph Demo: Candle on handtowel holder" class="demo-gif"></div>
+          <div class="demo-meta">
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">A)</span> <span class="meta-title">Original Task Command:</span></div>
+              <div class="meta-content">&ldquo;Light the candle and put it on the handtowel holder&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">B)</span> <span class="meta-title">TR-Graph Defect Reasoning:</span></div>
+              <div class="meta-content defect-text">Fire hazard from placing a lit candle on a flammable handtowel holder.</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">C)</span> <span class="meta-title">Repair Suggestion - <span class="meta-executed">(Executed)</span>:</span></div>
+              <div class="meta-content approval-text">Do you want me to &ldquo;put the unlit candle on the sidetable for decorative purposes?&rdquo;</div>
+            </div>
+            <div class="demo-meta-stacked">
+              <div class="meta-number"><span class="meta-letter">D)</span> <span class="meta-title">Operator(s):</span></div>
+              <div class="meta-content"><span class="operator-tag">Constrain</span> <span class="operator-tag">Substitute</span> <span class="operator-tag">Retarget</span></div>
             </div>
           </div>
         </div>
